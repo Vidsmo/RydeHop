@@ -1,59 +1,93 @@
 #include "linked_list.h"
 #include <stdlib.h>
+#include <stdio.h>
 
-LinkedList* create_linked_list() {
-    LinkedList *list = (LinkedList*)malloc(sizeof(LinkedList));
-    list->head = NULL;
-    list->size = 0;
-    return list;
+LinkedList *create_linked_list()
+{
+    LinkedList *list=(LinkedList *)malloc(sizeof(LinkedList));
+    if(list==NULL)
+    {
+        printf("memoery allocation failed\n");
+        return NULL;
+    }
+    list->head=NULL;
+    list->size=0;   
 }
 
-void list_insert(LinkedList *list, void *data) {
-    ListNode *new_node = (ListNode*)malloc(sizeof(ListNode));
-    new_node->data = data;
-    new_node->next = list->head;
-    list->head = new_node;
-    list->size++;
+void list_insert(LinkedList *list, void *data)
+{
+    if(list==NULL)
+    {
+        printf("list is NULL\n");
+        return;
+    }
+   ListNode *node=(ListNode *)malloc(sizeof(ListNode));
+   if(node==NULL)
+   {
+    printf("memory allocation failed\n");
+    return;
+   }
+    node->data=data;
+    node->next=list->head;
+list->head=node;
+list->size++;
 }
-
-void* list_remove(LinkedList *list, void *data, int (*compare)(void*, void*)) {
-    ListNode *current = list->head;
-    ListNode *prev = NULL;
-    
-    while (current != NULL) {
-        if (compare(current->data, data) == 0) {
-            if (prev == NULL) {
-                list->head = current->next;
-            } else {
-                prev->next = current->next;
+void list_remove(LinkedList *List,void *data)
+{
+    if(List==NULL)
+    {
+        printf("list is empty");
+        return ;
+    }
+    ListNode *curr=List->head;
+    ListNode *prev=NULL;
+    while(curr!=NULL)
+    {
+        if(curr->data==data)
+        {
+            if(prev==NULL)
+            {
+                List->head=curr->next;
             }
-            void *removed_data = current->data;
-            free(current);
-            list->size--;
-            return removed_data;
+            else
+            {
+                prev->next=curr->next;
+            }
+            free(curr);
+            List->size--;
         }
-        prev = current;
-        current = current->next;
+        prev=curr;
+        curr=curr->next;
     }
-    return NULL;
 }
-
-void* list_find(LinkedList *list, void *data, int (*compare)(void*, void*)) {
-    ListNode *current = list->head;
-    while (current != NULL) {
-        if (compare(current->data, data) == 0) {
-            return current->data;
+void *list_find(LinkedList *list,void *data)
+{
+    if(list==NULL)
+    {
+        printf("list is NULL\n");
+        return NULL;
+    }
+    ListNode *curr=list->head;
+    while(curr!=NULL)
+    {
+        if(curr->data==data)
+        {
+            return curr->data;
         }
-        current = current->next;
+        curr=curr->next;
     }
-    return NULL;
 }
-
-void free_linked_list(LinkedList *list) {
-    ListNode *current = list->head;
-    while (current != NULL) {
-        ListNode *temp = current;
-        current = current->next;
+void free_linked_list(LinkedList *list)
+{
+    if(list==NULL)
+    {
+        return;
+    }
+    ListNode *curr=list->head;
+    while(curr!=NULL)
+    {
+        ListNode *temp=curr;
+        curr=curr->next;
         free(temp);
     }
     free(list);

@@ -1,60 +1,64 @@
 #include "hopper.h"
-#include "ride.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <ctype.h>
 
-void validatePhone(char phone[])
-{
-    if (strlen(phone) != 10)
-    {
-        printf("Invalid phone number! Should be 10 digits.\n");
+// Validate phone number: must be 10 digits
+void validatePhone(char phone[]) {
+    int len = strlen(phone);
+    if (len != 10) {
+        printf("Invalid phone number! Should be exactly 10 digits.\n");
         exit(1);
+    }
+    for (int i = 0; i < len; i++) {
+        if (!isdigit(phone[i])) {
+            printf("Invalid phone number! Only digits are allowed.\n");
+            exit(1);
+        }
     }
 }
 
-void validateEmail(char email[])
-{
-    if (strchr(email, '@') == NULL || strchr(email, '.') == NULL)
-    {
+// Validate email format: must contain '@' and '.'
+void validateEmail(char email[]) {
+    if (strchr(email, '@') == NULL || strchr(email, '.') == NULL) {
         printf("Invalid email address!\n");
         exit(1);
     }
 }
 
-void saveUser(struct User u)
-{
+// Save user details to file
+void saveUser(struct User u) {
     FILE *p = fopen("users.txt", "a");
-    if (p != NULL)
-    {
-        fprintf(p, "%s %s %s %s %s %s %s\n",
-                u.username, u.password, u.phone, u.email,
-                u.gender, u.emergency[0], u.emergency[1]);
-        printf("User registered successfully!\n");
-        fclose(p);
+    if (p == NULL) {
+        printf("Error opening file for saving user!\n");
+        return;
     }
-    else
-    {
-        printf("Error opening file!\n");
-    }
+
+    fprintf(p, "%s %s %s %s %s %s %s\n",
+            u.username, u.password, u.phone, u.email,
+            u.gender, u.emergency[0], u.emergency[1]);
+
+    fclose(p);
+    printf("✅ User registered successfully!\n");
 }
 
-void inputAdditionalInfo(struct User *user)
-{
+// Input additional user info: gender and emergency contacts
+void inputAdditionalInfo(struct User *user) {
     printf("Enter gender: ");
     scanf("%s", user->gender);
 
-    printf("Enter two emergency contacts: ");
+    printf("Enter two emergency contact numbers: ");
     scanf("%s %s", user->emergency[0], user->emergency[1]);
 
     saveUser(*user);
 }
 
-struct User signin()
-{
+// Sign up new user
+struct User signin() {
     struct User user;
 
+    printf("\n--- User Registration ---\n");
     printf("Enter username: ");
     scanf("%s", user.username);
 
@@ -74,11 +78,12 @@ struct User signin()
     return user;
 }
 
-int loginUser(struct User *loggedUser)
-{
+// Log in existing user
+int loginUser(struct User *loggedUser) {
     char username[MAX];
     char password[20];
 
+    printf("\n--- User Login ---\n");
     printf("Enter username: ");
     scanf("%s", username);
 
@@ -86,52 +91,58 @@ int loginUser(struct User *loggedUser)
     scanf("%s", password);
 
     FILE *p = fopen("users.txt", "r");
-    if (!p)
-    {
-        printf("No user found. Please sign up first.\n");
+    if (p == NULL) {
+        printf("No user data found. Please register first.\n");
         return 0;
     }
 
     struct User u;
+    int found = 0;
     while (fscanf(p, "%s %s %s %s %s %s %s",
                   u.username, u.password, u.phone, u.email,
-                  u.gender, u.emergency[0], u.emergency[1]) != EOF)
-    {
-        if (strcmp(u.username, username) == 0 && strcmp(u.password, password) == 0)
-        {
+                  u.gender, u.emergency[0], u.emergency[1]) != EOF) {
+        if (strcmp(u.username, username) == 0 && strcmp(u.password, password) == 0) {
             *loggedUser = u;
-            fclose(p);
-            printf("Login successful!\n");
-            return 1;
+            found = 1;
+            break;
         }
     }
 
     fclose(p);
-    printf("Invalid username or password.\n");
-    return 0;
+
+    if (found) {
+        printf("✅ Login successful!\n");
+        return 1;
+    } else {
+        printf("❌ Invalid username or password.\n");
+        return 0;
+    }
 }
 
-void searchRides(char pickup[], char drop[], char date[])
-{
+// Search rides based on pickup, drop, or date
+void searchRides(char pickup[], char drop[], char date[]) {
     FILE *p = fopen("rideRequests.txt", "r");
-    if (!p)
-    {
+    if (p == NULL) {
         printf("No ride requests found.\n");
         return;
     }
 
     struct Ride r;
     int found = 0;
+
     while (fscanf(p, "%s %s %s %s %s %s %s %s",
-                  r.username, r.pickup, r.drop, r.vehiclePreference,
-                  r.seatPreference, r.rideDate, r.rideTime, r.additionalNotes) != EOF)
-    {
-        if ((strcmp(r.pickup, pickup) == 0 || strlen(pickup) == 0) &&
-            (strcmp(r.drop, drop) == 0 || strlen(drop) == 0) &&
-            (strcmp(r.rideDate, date) == 0 || strlen(date) == 0))
-        {
-            printf("User: %s | Pickup: %s | Drop: %s | Date: %s | Time: %s\n",
-                   r.username, r.pickup, r.drop, r.rideDate, r.rideTime);
+                  r.username, r.pickup, r.drop,
+                  r.vehiclePreference, r.seatPreference,
+                  r.rideDate, r.rideTime, r.additionalNotes) != EOF) {
+
+        if ((strcmp(pickup, "") == 0 || strcmp(r.pickup, pickup) == 0) &&
+            (strcmp(drop, "") == 0 || strcmp(r.drop, drop) == 0) &&
+            (strcmp(date, "") == 0 || strcmp(r.rideDate, date) == 0)) {
+
+            printf("\nUser: %s\nPickup: %s\nDrop: %s\nDate: %s\nTime: %s\nVehicle: %s\nSeat: %s\nNotes: %s\n",
+                   r.username, r.pickup, r.drop, r.rideDate, r.rideTime,
+                   r.vehiclePreference, r.seatPreference, r.additionalNotes);
+
             found = 1;
         }
     }
@@ -141,5 +152,3 @@ void searchRides(char pickup[], char drop[], char date[])
 
     fclose(p);
 }
-
-
