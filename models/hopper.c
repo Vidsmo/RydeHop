@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 
+// Validate phone number: must be 10 digits
 void validatePhone(char phone[]) {
     int len = strlen(phone);
     if (len != 10) {
@@ -18,6 +19,7 @@ void validatePhone(char phone[]) {
     }
 }
 
+// Validate email format: must contain '@' and '.'
 void validateEmail(char email[]) {
     if (strchr(email, '@') == NULL || strchr(email, '.') == NULL) {
         printf("Invalid email address!\n");
@@ -25,6 +27,7 @@ void validateEmail(char email[]) {
     }
 }
 
+// Save user details to file
 void saveUser(struct User u) {
     FILE *p = fopen("users.txt", "a");
     if (p == NULL) {
@@ -40,6 +43,7 @@ void saveUser(struct User u) {
     printf("✅ User registered successfully!\n");
 }
 
+// Input additional user info: gender and emergency contacts
 void inputAdditionalInfo(struct User *user) {
     printf("Enter gender: ");
     scanf("%s", user->gender);
@@ -50,8 +54,8 @@ void inputAdditionalInfo(struct User *user) {
     saveUser(*user);
 }
 
-struct User signin() 
-{
+// Sign up new user
+struct User signin() {
     struct User user;
 
     printf("\n--- User Registration ---\n");
@@ -74,6 +78,7 @@ struct User signin()
     return user;
 }
 
+// Log in existing user
 int loginUser(struct User *loggedUser) {
     char username[MAX];
     char password[20];
@@ -113,6 +118,8 @@ int loginUser(struct User *loggedUser) {
         return 0;
     }
 }
+
+// Search rides based on pickup, drop, or date
 void searchRides(char pickup[], char drop[], char date[]) {
     FILE *p = fopen("rideRequests.txt", "r");
     if (p == NULL) {
