@@ -5,12 +5,14 @@
 
 #define TABLE_SIZE 100
 
-typedef struct HashEntry {
+typedef struct 
+{
     char *key;
     void *data;
 } HashEntry;
 
-typedef struct {
+typedef struct 
+{
     LinkedList **buckets;
     int size;
 } HashTable;

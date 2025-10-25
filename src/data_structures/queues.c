@@ -1,43 +1,43 @@
 #include "queues.h"
 #include <stdlib.h>
-
-Queue* create_queue() {
-    Queue *queue = (Queue*)malloc(sizeof(Queue));
-    queue->list = create_linked_list();
-    return queue;
-}
-
-void enqueue(Queue *queue, void *data) {
-    list_insert(queue->list, data);
-}
-
-void* dequeue(Queue *queue) {
-    if (queue->list->head == NULL) return NULL;
-    
-    // Find the last node
-    ListNode *current = queue->list->head;
-    ListNode *prev = NULL;
-    while (current->next != NULL) {
-        prev = current;
-        current = current->next;
+Queue *create_queue()
+{
+    Queue *q=(Queue *)malloc(sizeof(Queue));
+    if(q==NULL)
+    {
+        printf("memory allocation failed\n");
+        return NULL;
     }
-    
-    void *data = current->data;
-    if (prev == NULL) {
-        queue->list->head = NULL;
-    } else {
-        prev->next = NULL;
+    q->list=create_linked_list();
+    return q;
+}
+
+void enqueue(Queue *queue, void *data)
+{
+    if(queue==NULL)
+    {
+        printf("queue is NULL\n");
+        return;
     }
-    free(current);
-    queue->list->size--;
-    return data;
+    list_insert(queue->list,data);
 }
 
-int is_queue_empty(Queue *queue) {
-    return queue->list->head == NULL;
+void *dequeue(Queue *queue)
+{
+    if(queue==NULL || queue->list->head==NULL)
+    {
+        printf("queue is empty\n");
+        return NULL;
+    }
+     list_remove(queue->list, queue->list->head->data);
 }
 
-void free_queue(Queue *queue) {
+void free_queue(Queue *queue)
+{
+    if(queue==NULL)
+    {
+        return;
+    }
     free_linked_list(queue->list);
     free(queue);
 }
